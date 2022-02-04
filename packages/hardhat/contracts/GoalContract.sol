@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 // import "@openzeppelin/contracts/access/Ownable.sol";
 // https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol
 
-contract YourContract is ReentrancyGuard {
+contract GoalContract is ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter public _goalIds;
     Counters.Counter public _goalsAchieved;
