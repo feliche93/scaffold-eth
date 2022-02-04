@@ -10,8 +10,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract YourContract is ReentrancyGuard {
     using Counters for Counters.Counter;
-    Counters.Counter private _itemIds;
-    Counters.Counter private _goalsCreated;
+    Counters.Counter public _goalIds;
+    Counters.Counter public _goalsAchieved;
 
     struct Goal {
         uint256 goalId;
@@ -39,6 +39,32 @@ contract YourContract is ReentrancyGuard {
         bool ended
     );
 
+    // event GoalAchieved(
+    //     uint256 goalId,
+    //     string goal,
+    //     uint256 deadline,
+    //     address goalOwnerAddress,
+    //     address goalCheckerAddress,
+    //     uint256 amountPledged,
+    //     bool achieved,
+    //     bool withdrawn,
+    //     bool started,
+    //     bool ended
+    // );
+
+    // event PledgedAmountWithdrawn(
+    //     uint256 goalId,
+    //     string goal,
+    //     uint256 deadline,
+    //     address goalOwnerAddress,
+    //     address goalCheckerAddress,
+    //     uint256 amountPledged,
+    //     bool achieved,
+    //     bool withdrawn,
+    //     bool started,
+    //     bool ended
+    // );
+
     mapping(uint256 => Goal) public idToGoal;
     mapping(address => uint256) public amountLockedByAddress;
 
@@ -61,11 +87,11 @@ contract YourContract is ReentrancyGuard {
             "Goal checker address cannot be the one of setting the goal"
         );
 
-        _itemIds.increment();
-        uint256 itemId = _itemIds.current();
+        _goalIds.increment();
+        uint256 goalId = _goalIds.current();
 
-        idToGoal[itemId] = Goal(
-            itemId, // goalId
+        idToGoal[goalId] = Goal(
+            goalId, // goalId
             goal, // goal
             block.timestamp + deadlineInDays * 1 seconds, // deadline calculated from timestamp of block on
             payable(msg.sender), // goalOwnerAddress
@@ -80,8 +106,18 @@ contract YourContract is ReentrancyGuard {
         // keeping a glboal mapping of each challengers address to the amount they have locked
         amountLockedByAddress[payable(msg.sender)] += msg.value;
 
-        // keeping track of achieved goals
-        _goalsCreated.increment();
+        emit GoalCreated(
+            goalId,
+            goal,
+            block.timestamp + deadlineInDays * 1 seconds,
+            payable(msg.sender),
+            payable(goalCheckerAddress),
+            msg.value,
+            false,
+            false,
+            true,
+            false
+        );
     }
 
     function verifyGoal(uint256 goalId, bool achieved) public {
@@ -99,11 +135,25 @@ contract YourContract is ReentrancyGuard {
             "Goal deadline has not passed yet."
         );
 
+        _goalsAchieved.increment();
         idToGoal[goalId].achieved = achieved;
         idToGoal[goalId].ended = true;
+
+        // emit GoalAchieved(
+        //     idToGoal[goalId].goalId,
+        //     idToGoal[goalId].goal,
+        //     idToGoal[goalId].deadline,
+        //     idToGoal[goalId].goalOwnerAddress,
+        //     idToGoal[goalId].goalCheckerAddress,
+        //     idToGoal[goalId].amountPledged,
+        //     idToGoal[goalId].achieved,
+        //     idToGoal[goalId].withdrawn,
+        //     idToGoal[goalId].started,
+        //     idToGoal[goalId].ended
+        // );
     }
 
-    function withdrawFunds(uint256 goalId) public {
+    function withdrawFunds(uint256 goalId) public nonReentrant {
         require(
             msg.sender == idToGoal[goalId].goalOwnerAddress,
             "Only goal owner can withdraw funds"
@@ -127,24 +177,19 @@ contract YourContract is ReentrancyGuard {
             ""
         );
         require(sent, "Failed to send user ETH back");
-    }
 
-    function fetchGoals() public view returns (Goal[] memory) {
-        uint256 itemCount = _itemIds.current();
-        uint256 notAchievedGoalsCount = _itemIds.current() -
-            _goalsCreated.current();
-        uint256 currentIndex = 0;
-
-        Goal[] memory goals = new Goal[](notAchievedGoalsCount);
-        for (uint256 i = 0; i < itemCount; i++) {
-            if (idToGoal[i + 1].achieved) {
-                uint256 currentId = i + 1;
-                Goal storage currentItem = idToGoal[currentId];
-                goals[currentIndex] = currentItem;
-                currentIndex += 1;
-            }
-        }
-        return goals;
+        // emit PledgedAmountWithdrawn(
+        //     idToGoal[goalId].goalId,
+        //     idToGoal[goalId].goal,
+        //     idToGoal[goalId].deadline,
+        //     idToGoal[goalId].goalOwnerAddress,
+        //     idToGoal[goalId].goalCheckerAddress,
+        //     idToGoal[goalId].amountPledged,
+        //     idToGoal[goalId].achieved,
+        //     idToGoal[goalId].withdrawn,
+        //     idToGoal[goalId].started,
+        //     idToGoal[goalId].ended
+        // );
     }
 
     // to support receiving ETH by default
