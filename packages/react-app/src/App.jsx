@@ -281,7 +281,18 @@ function App(props) {
       <Switch>
         <Route exact path="/">
           {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
-          <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} />
+          <Home
+            yourLocalBalance={yourLocalBalance}
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            address={address}
+            userSigner={userSigner}
+            mainnetProvider={mainnetProvider}
+            localProvider={localProvider}
+            yourLocalBalance={yourLocalBalance}
+            price={price}
+            tx={tx}
+          />
         </Route>
         <Route exact path="/debug">
           {/*
@@ -309,7 +320,7 @@ function App(props) {
           />
         </Route>
         <Route path="/exampleui">
-          {/* <ExampleUI
+          <ExampleUI
             address={address}
             userSigner={userSigner}
             mainnetProvider={mainnetProvider}
@@ -319,8 +330,8 @@ function App(props) {
             tx={tx}
             writeContracts={writeContracts}
             readContracts={readContracts}
-            purpose={purpose}
-          /> */}
+            purpose={createdGoals}
+          />
         </Route>
         <Route path="/mainnetdai">
           <Contract
