@@ -103,6 +103,32 @@ contract YourContract is ReentrancyGuard {
         idToGoal[goalId].ended = true;
     }
 
+    function withdrawFunds(uint256 goalId) public {
+        require(
+            msg.sender == idToGoal[goalId].goalOwnerAddress,
+            "Only goal owner can withdraw funds"
+        );
+        require(idToGoal[goalId].started, "Goal must be started");
+        require(idToGoal[goalId].ended, "Goal has not ended yet");
+        require(
+            block.timestamp >= idToGoal[goalId].deadline,
+            "Goal deadline has not passed yet."
+        );
+        require(!idToGoal[goalId].withdrawn, "Goal has already been withdrawn");
+        require(
+            idToGoal[goalId].achieved,
+            "Goal has not been verified as achieved"
+        );
+
+        idToGoal[goalId].withdrawn = true;
+        idToGoal[goalId].ended = true;
+
+        (bool sent, ) = msg.sender.call{value: idToGoal[goalId].amountPledged}(
+            ""
+        );
+        require(sent, "Failed to send user ETH back");
+    }
+
     function fetchGoals() public view returns (Goal[] memory) {
         uint256 itemCount = _itemIds.current();
         uint256 notAchievedGoalsCount = _itemIds.current() -
