@@ -137,9 +137,7 @@ function CreateGoal({
                 <span style={{ fontSize: 24 }}>{moment.unix(item.args[2].toNumber()).fromNow()}</span>
                 <span> or loose</span>
                 <Balance price={price} balance={item.args[5]} />
-
-
-
+                <span>(Goal ID {item.args[0].toString()})</span>
               </List.Item>
             );
           }}
