@@ -27,7 +27,7 @@ import { ethers } from "ethers";
  * @param {*} readContracts contracts from current chain already pre-loaded using ethers contract module. More here https://docs.ethers.io/v5/api/contract/contract/
  * @returns react component
  **/
-function Home({
+function CreateGoal({
   yourLocalBalance,
   readContracts,
   writeContracts,
@@ -54,7 +54,7 @@ function Home({
 
   return (
     <>
-      <div style={{ padding: 8, marginTop: 60, width: 420, margin: "auto" }}>
+      <div style={{ padding: 8, marginTop: 50, width: 420, margin: "auto" }}>
         <Card title="Put your Crypto where your mouth is 💪">
           <div style={{ padding: 8 }}>
             <Input
@@ -94,7 +94,7 @@ function Home({
               autofocus={true}
               price={price}
               value={amountPledged}
-              placeholder="Your Pledged Amount 💰"
+              placeholder="Pledged Amount 💰"
               onChange={value => {
                 setAmountPledged(value);
               }}
@@ -131,12 +131,15 @@ function Home({
           renderItem={item => {
             return (
               <List.Item key={item.blockNumber + item.blockHash}>
-                <Address value={item.args[3]} ensProvider={mainnetProvider} fontSize={16} /> pledged
-                <Balance price={price} balance={item.args[5]} />
-                <span>ETH to </span>
-                <span style={{ fontSize: 24 }}>{item.args[1]} </span>
-                <span>until </span>
+                <Address value={item.args[3]} ensProvider={mainnetProvider} fontSize={16} /> will
+                <span style={{ fontSize: 24 }}> {item.args[1]} </span>
+                <span> until </span>
                 <span style={{ fontSize: 24 }}>{moment.unix(item.args[2].toNumber()).fromNow()}</span>
+                <span> or loose</span>
+                <Balance price={price} balance={item.args[5]} />
+
+
+
               </List.Item>
             );
           }}
@@ -147,4 +150,4 @@ function Home({
   );
 }
 
-export default Home;
+export default CreateGoal;
