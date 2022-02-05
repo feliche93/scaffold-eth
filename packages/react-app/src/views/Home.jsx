@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useEventListener } from "eth-hooks/events/useEventListener";
 import { useContractReader } from "eth-hooks";
-import { Button, Card, DatePicker, TimePicker, Divider, Row, Col, Input, Progress, Slider, Spin, Switch } from "antd";
+import { Button, Card, DatePicker, List, TimePicker, Divider, Row, Col, Input, Progress, Slider, Spin, Switch } from "antd";
 import {
   Account,
   Address,
@@ -40,6 +41,10 @@ function Home({
   // you can also use hooks locally in your component of choice
   // in this case, let's keep track of 'purpose' variable from our contract
   const goalsCreated = useContractReader(readContracts, "GoalContract", "_goalIds");
+
+  const goalsCreatedEvents = useEventListener(readContracts, "GoalContract", "GoalCreated", localProvider, 1);
+  console.log("📟 goalsCreatedEvents:", goalsCreatedEvents);
+
 
   const [goalCheckerAddress, setGoalCheckerAddress] = useState();
   const [goal, setGoal] = useState();
@@ -117,7 +122,27 @@ function Home({
           </Button>
         </div>
       </Card>
+      <div style={{ width: 500, margin: "auto", marginTop: 64 }}>
+        <div>Created Goals:</div>
+        <List
+          dataSource={goalsCreatedEvents}
+          renderItem={item => {
+            return (
+              <List.Item key={item.blockNumber + item.blockHash}>
+                <Address value={item.args[3]} ensProvider={mainnetProvider} fontSize={16} /> pledged
+                <Balance balance={item.args[5]} />
+                {'ETH to '}
+                {item.args[1]}
+                {/* until */}
+                {/* {item.args[2]} */}
+              </List.Item>
+            );
+          }}
+        />
+      </div>
     </div>
+
+
   );
 }
 
