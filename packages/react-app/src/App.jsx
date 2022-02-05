@@ -29,7 +29,7 @@ import externalContracts from "./contracts/external_contracts";
 // contracts
 import deployedContracts from "./contracts/hardhat_contracts.json";
 import { Transactor, Web3ModalSetup } from "./helpers";
-import { Home, CreateGoal, ExampleUI, Hints, Subgraph } from "./views";
+import { Home, CreateGoal, EvaluateGoal } from "./views";
 import { useStaticJsonRPC } from "./hooks";
 
 const { ethers } = require("ethers");
@@ -264,8 +264,8 @@ function App(props) {
         <Menu.Item key="/create-goal">
           <Link to="/create-goal">Create Goal</Link>
         </Menu.Item>
-        <Menu.Item key="/verify-goal">
-          <Link to="/verify-goal">Evaluate Goal</Link>
+        <Menu.Item key="/evaluate-goal">
+          <Link to="/evaluate-goal">Evaluate Goal</Link>
         </Menu.Item>
         <Menu.Item key="/debug">
           <Link to="/debug">Debug Contracts</Link>
@@ -291,6 +291,21 @@ function App(props) {
         <Route exact path="/create-Goal">
           {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
           <CreateGoal
+            yourLocalBalance={yourLocalBalance}
+            readContracts={readContracts}
+            writeContracts={writeContracts}
+            address={address}
+            userSigner={userSigner}
+            mainnetProvider={mainnetProvider}
+            localProvider={localProvider}
+            yourLocalBalance={yourLocalBalance}
+            price={price}
+            tx={tx}
+          />
+        </Route>
+        <Route exact path="/evaluate-Goal">
+          {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
+          <EvaluateGoal
             yourLocalBalance={yourLocalBalance}
             readContracts={readContracts}
             writeContracts={writeContracts}

@@ -39,18 +39,12 @@ contract GoalContract is ReentrancyGuard {
         bool ended
     );
 
-    // event GoalAchieved(
-    //     uint256 goalId,
-    //     string goal,
-    //     uint256 deadline,
-    //     address goalOwnerAddress,
-    //     address goalCheckerAddress,
-    //     uint256 amountPledged,
-    //     bool achieved,
-    //     bool withdrawn,
-    //     bool started,
-    //     bool ended
-    // );
+    event GoalEvaluated(
+        uint256 goalId,
+        string goal,
+        address goalOwnerAddress,
+        bool achieved
+    );
 
     // event PledgedAmountWithdrawn(
     //     uint256 goalId,
@@ -120,10 +114,10 @@ contract GoalContract is ReentrancyGuard {
         );
     }
 
-    function verifyGoal(uint256 goalId, bool achieved) public {
+    function evaluateGoal(uint256 goalId, bool achieved) public {
         require(
             msg.sender == idToGoal[goalId].goalCheckerAddress,
-            "Only goal checker can verify goal"
+            "Only goal checker can evaluate goal"
         );
         require(idToGoal[goalId].started, "Goal must be started");
         require(
@@ -139,18 +133,12 @@ contract GoalContract is ReentrancyGuard {
         idToGoal[goalId].achieved = achieved;
         idToGoal[goalId].ended = true;
 
-        // emit GoalAchieved(
-        //     idToGoal[goalId].goalId,
-        //     idToGoal[goalId].goal,
-        //     idToGoal[goalId].deadline,
-        //     idToGoal[goalId].goalOwnerAddress,
-        //     idToGoal[goalId].goalCheckerAddress,
-        //     idToGoal[goalId].amountPledged,
-        //     idToGoal[goalId].achieved,
-        //     idToGoal[goalId].withdrawn,
-        //     idToGoal[goalId].started,
-        //     idToGoal[goalId].ended
-        // );
+        emit GoalEvaluated(
+            idToGoal[goalId].goalId,
+            idToGoal[goalId].goal,
+            idToGoal[goalId].goalOwnerAddress,
+            idToGoal[goalId].achieved
+        );
     }
 
     function withdrawFunds(uint256 goalId) public nonReentrant {
@@ -190,6 +178,51 @@ contract GoalContract is ReentrancyGuard {
         //     idToGoal[goalId].started,
         //     idToGoal[goalId].ended
         // );
+    }
+
+    /* Returns only items that a user has purchased */
+    function fetchEvaluationsByAddress(address targetAddresss)
+        public
+        view
+        returns (Goal[] memory)
+    {
+        uint256 totalGoalCount = _goalIds.current();
+        uint256 GoalCount = 0;
+        uint256 currentIndex = 0;
+
+        console.log("Total goal count: %s", totalGoalCount);
+        console.log("Target Address: %s", targetAddresss);
+
+        for (uint256 i = 0; i < totalGoalCount; i++) {
+            console.log("i: %s", i);
+            if (
+                idToGoal[i + 1].goalCheckerAddress == targetAddresss &&
+                !idToGoal[i + 1].ended
+            ) {
+                console.log(
+                    "Goal Checker Address: %s",
+                    idToGoal[i + 1].goalCheckerAddress
+                );
+                GoalCount += 1;
+            }
+        }
+
+        console.log("Goal count: %s", GoalCount);
+
+        Goal[] memory goals = new Goal[](GoalCount);
+        for (uint256 i = 0; i < totalGoalCount; i++) {
+            if (
+                idToGoal[i + 1].goalCheckerAddress == targetAddresss &&
+                !idToGoal[i + 1].ended
+            ) {
+                uint256 currentId = i + 1;
+                Goal storage currentItem = idToGoal[currentId];
+                goals[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+
+        return goals;
     }
 
     // to support receiving ETH by default
