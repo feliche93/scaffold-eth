@@ -1,11 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useContractReader } from "eth-hooks";
-import { Button, Card, DatePicker, Divider, Input, Progress, Slider, Spin, Switch } from "antd";
+import { Button, Card, DatePicker, TimePicker, Divider, Row, Col, Input, Progress, Slider, Spin, Switch } from "antd";
 import {
   Account,
   Address,
   AddressInput,
+  EtherInput,
   Balance,
   Contract,
   Faucet,
@@ -15,6 +16,7 @@ import {
   ThemeSwitch,
 } from "./../components";
 import { useCallback, useEffect, useState } from "react";
+import moment from 'moment';
 
 import { ethers } from "ethers";
 
@@ -41,7 +43,9 @@ function Home({
 
   const [goalCheckerAddress, setGoalCheckerAddress] = useState();
   const [goal, setGoal] = useState();
-
+  const [deadline, setDeadline] = useState();
+  const [deadlineInDays, setDeadlineInDays] = useState();
+  const [amountPledged, setAmountPledged] = useState();
 
   return (
     <div style={{ padding: 8, marginTop: 32, width: 420, margin: "auto" }}>
@@ -49,10 +53,44 @@ function Home({
         <div style={{ padding: 8 }}>
           <Input
             style={{ textAlign: "center" }}
-            placeholder={"Goal"}
-            value={goal}
+            placeholder={"Describe your goal"}
+            onOk={goal}
             onChange={e => {
               setGoal(e.target.value);
+            }}
+          />
+        </div>
+        <div style={{ padding: 8 }}>
+          <Input
+            style={{ textAlign: "center" }}
+            placeholder={"How many days do you have to reach your goal?"}
+            value={deadlineInDays}
+            onChange={e => {
+              setDeadlineInDays(e.target.value);
+            }}
+          />
+        </div>
+        {/* <div style={{ padding: 8 }}>
+          <DatePicker
+            showTime
+            value={deadline}
+            onOk={deadline}
+            onChange={e => {
+              console.log(e);
+              setGoal(e);
+            }}
+            placeholder="Set a deadline for your goal"
+            style={{ width: '100%' }}
+          />
+        </div> */}
+        <div style={{ padding: 8 }}>
+          <EtherInput
+            autofocus={true}
+            price={price}
+            value={amountPledged}
+            placeholder="Amount pledged"
+            onChange={value => {
+              setAmountPledged(value);
             }}
           />
         </div>
@@ -65,19 +103,18 @@ function Home({
               onChange={setGoalCheckerAddress}
             />
           </div>
-
         </div>
         <div style={{ padding: 8 }}>
-          {/* <Button
+          <Button
             type={"primary"}
             onClick={() => {
               tx(
-                writeContracts.YourToken.transfer(tokenSendToAddress, ethers.utils.parseEther("" + tokenSendAmount)),
+                writeContracts.GoalContract.createGoal(goal, deadlineInDays, goalCheckerAddress, { value: ethers.utils.parseEther("" + amountPledged) }),
               );
             }}
           >
-            Send Tokens
-          </Button> */}
+            Start Challenge
+          </Button>
         </div>
       </Card>
     </div>
