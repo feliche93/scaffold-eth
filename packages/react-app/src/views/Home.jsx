@@ -53,29 +53,30 @@ function Home({
   const [amountPledged, setAmountPledged] = useState();
 
   return (
-    <div style={{ padding: 8, marginTop: 32, width: 420, margin: "auto" }}>
-      <Card title="Create a Goal">
-        <div style={{ padding: 8 }}>
-          <Input
-            style={{ textAlign: "center" }}
-            placeholder={"Describe your goal"}
-            onOk={goal}
-            onChange={e => {
-              setGoal(e.target.value);
-            }}
-          />
-        </div>
-        <div style={{ padding: 8 }}>
-          <Input
-            style={{ textAlign: "center" }}
-            placeholder={"How many days do you have to reach your goal?"}
-            value={deadlineInDays}
-            onChange={e => {
-              setDeadlineInDays(e.target.value);
-            }}
-          />
-        </div>
-        {/* <div style={{ padding: 8 }}>
+    <>
+      <div style={{ padding: 8, marginTop: 40, width: 420, margin: "auto" }}>
+        <Card title="Put your Crypto where your mouth is ">
+          <div style={{ padding: 8 }}>
+            <Input
+              style={{ textAlign: "center" }}
+              placeholder={"Describe your goal"}
+              onOk={goal}
+              onChange={e => {
+                setGoal(e.target.value);
+              }}
+            />
+          </div>
+          <div style={{ padding: 8 }}>
+            <Input
+              style={{ textAlign: "center" }}
+              placeholder={"How many days do you have to reach your goal?"}
+              value={deadlineInDays}
+              onChange={e => {
+                setDeadlineInDays(e.target.value);
+              }}
+            />
+          </div>
+          {/* <div style={{ padding: 8 }}>
           <DatePicker
             showTime
             value={deadline}
@@ -88,40 +89,41 @@ function Home({
             style={{ width: '100%' }}
           />
         </div> */}
-        <div style={{ padding: 8 }}>
-          <EtherInput
-            autofocus={true}
-            price={price}
-            value={amountPledged}
-            placeholder="Amount pledged"
-            onChange={value => {
-              setAmountPledged(value);
-            }}
-          />
-        </div>
-        <div>
           <div style={{ padding: 8 }}>
-            <AddressInput
-              ensProvider={mainnetProvider}
-              placeholder="Adress who verifies your goal"
-              value={goalCheckerAddress}
-              onChange={setGoalCheckerAddress}
+            <EtherInput
+              autofocus={true}
+              price={price}
+              value={amountPledged}
+              placeholder="Amount pledged"
+              onChange={value => {
+                setAmountPledged(value);
+              }}
             />
           </div>
-        </div>
-        <div style={{ padding: 8 }}>
-          <Button
-            type={"primary"}
-            onClick={() => {
-              tx(
-                writeContracts.GoalContract.createGoal(goal, deadlineInDays, goalCheckerAddress, { value: ethers.utils.parseEther("" + amountPledged) }),
-              );
-            }}
-          >
-            Start Challenge
-          </Button>
-        </div>
-      </Card>
+          <div>
+            <div style={{ padding: 8 }}>
+              <AddressInput
+                ensProvider={mainnetProvider}
+                placeholder="Adress who verifies your goal"
+                value={goalCheckerAddress}
+                onChange={setGoalCheckerAddress}
+              />
+            </div>
+          </div>
+          <div style={{ padding: 8 }}>
+            <Button
+              type={"primary"}
+              onClick={() => {
+                tx(
+                  writeContracts.GoalContract.createGoal(goal, deadlineInDays, goalCheckerAddress, { value: ethers.utils.parseEther("" + amountPledged) }),
+                );
+              }}
+            >
+              Start Challenge
+            </Button>
+          </div>
+        </Card>
+      </div>
       <div style={{ width: 500, margin: "auto", marginTop: 64 }}>
         <div>Created Goals:</div>
         <List
@@ -130,18 +132,17 @@ function Home({
             return (
               <List.Item key={item.blockNumber + item.blockHash}>
                 <Address value={item.args[3]} ensProvider={mainnetProvider} fontSize={16} /> pledged
-                <Balance balance={item.args[5]} />
-                {'ETH to '}
-                {item.args[1]}
-                {/* until */}
-                {/* {item.args[2]} */}
+                <Balance price={price} balance={item.args[5]} />
+                <span>ETH to </span>
+                <span style={{ fontSize: 24 }}>{item.args[1]} </span>
+                <span>until </span>
+                <span style={{ fontSize: 24 }}>{moment.unix(item.args[2].toNumber()).fromNow()}</span>
               </List.Item>
             );
           }}
         />
       </div>
-    </div>
-
+    </>
 
   );
 }
