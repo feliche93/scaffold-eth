@@ -45,8 +45,8 @@ function Home({
   const goalContractAddress = readContracts && readContracts.GoalContract && readContracts.GoalContract.address;
   console.log("📟 goalContractAddress:", goalContractAddress);
 
-  const goalsCreated = useContractReader(readContracts, "GoalContract", "_goalIds");
-  const goalsAchievedd = useContractReader(readContracts, "GoalContract", "_goalsAchieved");
+  const goalsCreated = useContractReader(readContracts, "GoalContract", "goalIds");
+  const goalsAchievedd = useContractReader(readContracts, "GoalContract", "goalsAchieved");
   const goalContractETHBalance = useBalance(localProvider, goalContractAddress);
 
   const goalsCreatedEvents = useEventListener(readContracts, "GoalContract", "GoalCreated", localProvider, 1);
@@ -89,7 +89,7 @@ function Home({
             <Step
               status="current"
               title="Step 1: Create a Goal"
-              description="Create a goal, put a deadline, pledge some crypto and put a wallet address of a supervisor who will evaluate wether you achieved your goal."
+              description="Create a goal, put a deadline, pledge some crypto and put a wallet address of a supervisor who will evaluate whether you achieved your goal."
             />
             <Step
               status="current"
@@ -99,7 +99,7 @@ function Home({
             <Step
               status="current"
               title="Step 3: Withdraw Your Funds"
-              description="If you achieved your goal, you can withdraw your funds from the smart contract. Otherwise your funds are locked and you loose your money."
+              description="If you achieved your goal, you can withdraw your funds from the smart contract. Otherwise, your funds are locked and you loose your money."
             />
           </Steps>
         </div>
