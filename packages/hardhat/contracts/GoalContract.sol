@@ -10,8 +10,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract GoalContract is ReentrancyGuard {
     using Counters for Counters.Counter;
-    Counters.Counter public _goalIds;
-    Counters.Counter public _goalsAchieved;
+    Counters.Counter public goalIds;
+    Counters.Counter public goalsAchieved;
 
     struct Goal {
         uint256 goalId;
@@ -46,18 +46,12 @@ contract GoalContract is ReentrancyGuard {
         bool achieved
     );
 
-    // event PledgedAmountWithdrawn(
-    //     uint256 goalId,
-    //     string goal,
-    //     uint256 deadline,
-    //     address goalOwnerAddress,
-    //     address goalCheckerAddress,
-    //     uint256 amountPledged,
-    //     bool achieved,
-    //     bool withdrawn,
-    //     bool started,
-    //     bool ended
-    // );
+    event PledgedAmountWithdrawn(
+        uint256 goalId,
+        string goal,
+        address goalOwnerAddress,
+        uint256 amountPledged
+    );
 
     mapping(uint256 => Goal) public idToGoal;
     mapping(address => uint256) public amountLockedByAddress;
@@ -81,8 +75,8 @@ contract GoalContract is ReentrancyGuard {
             "Goal checker address cannot be the one of setting the goal"
         );
 
-        _goalIds.increment();
-        uint256 goalId = _goalIds.current();
+        goalIds.increment();
+        uint256 goalId = goalIds.current();
 
         idToGoal[goalId] = Goal(
             goalId, // goalId
@@ -129,7 +123,7 @@ contract GoalContract is ReentrancyGuard {
             "Goal deadline has not passed yet."
         );
 
-        _goalsAchieved.increment();
+        goalsAchieved.increment();
         idToGoal[goalId].achieved = achieved;
         idToGoal[goalId].ended = true;
 
@@ -166,18 +160,12 @@ contract GoalContract is ReentrancyGuard {
         );
         require(sent, "Failed to send user ETH back");
 
-        // emit PledgedAmountWithdrawn(
-        //     idToGoal[goalId].goalId,
-        //     idToGoal[goalId].goal,
-        //     idToGoal[goalId].deadline,
-        //     idToGoal[goalId].goalOwnerAddress,
-        //     idToGoal[goalId].goalCheckerAddress,
-        //     idToGoal[goalId].amountPledged,
-        //     idToGoal[goalId].achieved,
-        //     idToGoal[goalId].withdrawn,
-        //     idToGoal[goalId].started,
-        //     idToGoal[goalId].ended
-        // );
+        emit PledgedAmountWithdrawn(
+            idToGoal[goalId].goalId,
+            idToGoal[goalId].goal,
+            idToGoal[goalId].goalOwnerAddress,
+            idToGoal[goalId].amountPledged
+        );
     }
 
     /* Returns goals that a user can evaluate */
@@ -186,7 +174,7 @@ contract GoalContract is ReentrancyGuard {
         view
         returns (Goal[] memory)
     {
-        uint256 totalGoalCount = _goalIds.current();
+        uint256 totalGoalCount = goalIds.current();
         uint256 GoalCount = 0;
         uint256 currentIndex = 0;
 
@@ -231,7 +219,7 @@ contract GoalContract is ReentrancyGuard {
         view
         returns (Goal[] memory)
     {
-        uint256 totalGoalCount = _goalIds.current();
+        uint256 totalGoalCount = goalIds.current();
         uint256 GoalCount = 0;
         uint256 currentIndex = 0;
 

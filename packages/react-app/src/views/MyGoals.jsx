@@ -46,24 +46,18 @@ function EvaluateGoal({
   const goalsAchieved = useContractReader(readContracts, "GoalContract", "fetchAchievedByAddress", [address]);
   console.log("🔥🔥🔥🔥🔥 goalsAchieved 🔥🔥🔥🔥:", goalsAchieved);
 
-  const goalsEvaluatedEvents = useEventListener(readContracts, "GoalContract", "GoalEvaluated", localProvider, 1);
-  console.log("📟 goalsEvaluatedEvents:", goalsEvaluatedEvents);
-
-  const [achieved, setAchieved] = useState(false);
+  const pledgedAmountWithdrawnEvents = useEventListener(readContracts, "GoalContract", "PledgedAmountWithdrawn", localProvider, 1);
+  console.log("📟 pledgedAmountWithdrawnEvents:", pledgedAmountWithdrawnEvents);
 
   return (
     <>
       <div style={{ padding: 8, marginTop: 50, width: 700, margin: "auto" }}>
-        <Card title="My Goals 🎯">
+        <Card title="Withdraw Funds from Completed Goals ✅">
           <div style={{ padding: 8 }}>
             <List
               itemLayout="vertical"
               dataSource={goalsAchieved}
               renderItem={item => {
-
-                const BlockieAvatar = (
-                  <Blockie address={item.goalOwnerAddress} />
-                )
 
                 return (
                   <List.Item
@@ -71,38 +65,28 @@ function EvaluateGoal({
                   >
                     <h4>Goal: </h4>
                     <p style={{ fontSize: 24 }}>{item.goal}</p>
-                    <h4>Created By: </h4>
-                    <p><Address style={{ marginBottom: '24px' }} address={item.goalOwnerAddress} /></p>
+                    <h4>Evaluated By: </h4>
+                    <p><Address style={{ marginBottom: '24px' }} address={item.goalCheckerAddress} /></p>
                     <h4>Amount Pledged: </h4>
                     <p><Balance price={price} balance={item.amountPledged} /></p>
                     <h4>Deadline: </h4>
                     <p style={{ fontSize: 24 }}>{moment.unix(item.deadline).calendar()}</p>
-                    <h4>Goal Completed: </h4>
-                    <Radio.Group
-                      value={achieved}
-                      buttonStyle="outline"
-                      onChange={e => {
-                        setAchieved(e.target.value);
-                        console.log("Achieved: ", e.target.value);
-                      }}
-                    >
-                      <Radio.Button value={true}>Yes</Radio.Button>
-                      <Radio.Button value={false}>No</Radio.Button>
-                    </Radio.Group>
+                    <h4>Goal status: </h4>
+                    <p style={{ fontSize: 24 }}>{item.achieved ? 'Completed ✅' : 'Failed to Complete ❌'}</p>
+                    { item.achieved && (
                     <div style={{ paddingTop: 30 }}>
                       <Button
                         type={"primary"}
                         onClick={() => {
-                          console.log("🔥🔥🔥🔥🔥 Achieved 🔥🔥🔥🔥:" , achieved);
-
                           tx(
-                            writeContracts.GoalContract.evaluateGoal(item.goalId, achieved)
+                            writeContracts.GoalContract.withdrawFunds(item.goalId)
                           );
                         }}
                       >
-                        Evaluate 🚀
+                        Withdraw Pledged Funds 🚀
                       </Button>
                     </div>
+                    )}
                   </List.Item>
                 );
               }}
@@ -113,7 +97,7 @@ function EvaluateGoal({
       <div style={{ width: 500, margin: "auto", marginTop: 64 }}>
         <div>Completed Goals:</div>
         <List
-          dataSource={goalsEvaluatedEvents}
+          dataSource={pledgedAmountWithdrawnEvents}
           itemLayout="vertical"
           renderItem={item => {
             return (
@@ -123,6 +107,8 @@ function EvaluateGoal({
                 { item.args[3] ? <span style={{ fontSize: 24 }}>completed ✅ </span> : <span style={{ fontSize: 24 }}>failed to complete ❌ </span> }
                 <span> the goal: </span>
                 <span style={{ fontSize: 24 }}>{item.args[1]}</span>
+                <span> and withdrew </span>
+                <Balance price={price} balance={item.args[3]} />
               </List.Item>
             );
           }}
