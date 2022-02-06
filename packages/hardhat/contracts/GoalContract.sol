@@ -180,7 +180,7 @@ contract GoalContract is ReentrancyGuard {
         // );
     }
 
-    /* Returns only items that a user has purchased */
+    /* Returns goals that a user can evaluate */
     function fetchEvaluationsByAddress(address targetAddresss)
         public
         view
@@ -214,6 +214,53 @@ contract GoalContract is ReentrancyGuard {
             if (
                 idToGoal[i + 1].goalCheckerAddress == targetAddresss &&
                 !idToGoal[i + 1].ended
+            ) {
+                uint256 currentId = i + 1;
+                Goal storage currentItem = idToGoal[currentId];
+                goals[currentIndex] = currentItem;
+                currentIndex += 1;
+            }
+        }
+
+        return goals;
+    }
+
+    /* Returns goals that a user complete */
+    function fetchAchievedByAddress(address targetAddresss)
+        public
+        view
+        returns (Goal[] memory)
+    {
+        uint256 totalGoalCount = _goalIds.current();
+        uint256 GoalCount = 0;
+        uint256 currentIndex = 0;
+
+        console.log("Total goal count: %s", totalGoalCount);
+        console.log("Target Address: %s", targetAddresss);
+
+        for (uint256 i = 0; i < totalGoalCount; i++) {
+            console.log("i: %s", i);
+            if (
+                idToGoal[i + 1].goalOwnerAddress == targetAddresss &&
+                idToGoal[i + 1].achieved &&
+                !idToGoal[i + 1].withdrawn
+            ) {
+                console.log(
+                    "Goal Checker Address: %s",
+                    idToGoal[i + 1].goalCheckerAddress
+                );
+                GoalCount += 1;
+            }
+        }
+
+        console.log("Goal count: %s", GoalCount);
+
+        Goal[] memory goals = new Goal[](GoalCount);
+        for (uint256 i = 0; i < totalGoalCount; i++) {
+            if (
+                idToGoal[i + 1].goalOwnerAddress == targetAddresss &&
+                idToGoal[i + 1].achieved &&
+                !idToGoal[i + 1].withdrawn
             ) {
                 uint256 currentId = i + 1;
                 Goal storage currentItem = idToGoal[currentId];
